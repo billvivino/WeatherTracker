@@ -90,7 +90,9 @@ final class SearchViewModel: ObservableObject {
     }
     
     func clearSearchResults() {
-        citySearchResults = []
+        DispatchQueue.main.async { [weak self] in
+            self?.citySearchResults = []
+        }
     }
 }
 

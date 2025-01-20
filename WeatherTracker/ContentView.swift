@@ -186,9 +186,16 @@ struct ContentView: View {
                 Spacer()
             } else {
                 VStack(spacing: 8) {
-                    Text("Invalid City Name")
-                        .font(.title)
-                        .fontWeight(.bold)
+                    if let error = weatherViewModel.fetchError,
+                       error as! WeatherFetchError == WeatherFetchError.noNetwork {
+                        Text("Error Fetching Weather Data")
+                            .font(.title)
+                            .fontWeight(.bold)
+                    } else {
+                        Text("Invalid City Name")
+                            .font(.title)
+                            .fontWeight(.bold)
+                    }
                     
                     if let error = weatherViewModel.fetchError {
                         Text(error.localizedDescription)

@@ -35,7 +35,7 @@ struct ContentView: View {
                         Task {
                             await weatherViewModel.updateWeather(for: searchViewModel.searchText, networkMonitor: self.networkMonitor)
                             searchViewModel.clearSearchResults()
-                            searchViewModel.searchText = ""
+                            searchViewModel.clearSearchText()
                         }
                     }
                 
@@ -44,7 +44,7 @@ struct ContentView: View {
                 // If there's text, show an X button
                 if !searchViewModel.searchText.isEmpty {
                     Button {
-                        searchViewModel.searchText = ""
+                        searchViewModel.clearSearchText()
                         searchViewModel.clearSearchResults()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
@@ -77,7 +77,7 @@ struct ContentView: View {
                         Task {
                             await weatherViewModel.updateWeather(for: cityResult.id, networkMonitor: self.networkMonitor)
                             searchViewModel.clearSearchResults()
-                            searchViewModel.searchText = ""
+                            searchViewModel.clearSearchText()
                         }
                     },
                     viewModel: searchViewModel

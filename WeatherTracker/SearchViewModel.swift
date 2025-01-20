@@ -94,6 +94,12 @@ final class SearchViewModel: ObservableObject {
             self?.citySearchResults = []
         }
     }
+    
+    func clearSearchText() {
+        DispatchQueue.main.async { [weak self] in
+            self?.searchText = ""
+        }
+    }
 }
 
 /// Example struct to hold the data we’re caching

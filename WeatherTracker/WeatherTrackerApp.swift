@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct WeatherTrackerApp: App {
     let weatherService: WeatherServiceProtocol = APIWeatherService()
+    @StateObject private var networkMonitor = NetworkMonitor()
     
     var body: some Scene {
         WindowGroup {
@@ -17,6 +18,7 @@ struct WeatherTrackerApp: App {
                 weatherViewModel: WeatherViewModel(weatherService: weatherService),
                 searchViewModel: SearchViewModel(weatherService: weatherService)
             )
+            .environmentObject(networkMonitor)
         }
     }
 }

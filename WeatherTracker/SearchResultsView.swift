@@ -20,20 +20,35 @@ struct SearchResultsView: View {
     @ObservedObject var viewModel: SearchViewModel
     
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 16) {
-                ForEach(results) { city in
-                    CityCardRow(
-                        city: city,
-                        onSelectCity: onSelectCity,
-                        viewModel: viewModel
-                    )
+        if viewModel.searchError != nil {
+            VStack(spacing: 8) {
+                Text("Something went wrong")
+                    .font(.title)
+                    .fontWeight(.bold)
+                
+                if let error = viewModel.searchError {
+                    Text(error.localizedDescription)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.red)
                 }
             }
-            .padding(.horizontal)
-            .padding(.top, 16)
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    ForEach(results) { city in
+                        CityCardRow(
+                            city: city,
+                            onSelectCity: onSelectCity,
+                            viewModel: viewModel
+                        )
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 16)
+            }
+            .scrollIndicators(.hidden)
         }
-        .scrollIndicators(.hidden)
     }
 }
 

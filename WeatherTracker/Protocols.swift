@@ -9,6 +9,7 @@ import Foundation
 
 protocol WeatherServiceProtocol: Sendable {
     func fetchWeather(for id: Int) async throws -> WeatherData
+    func fetchWeather(for cityString: String) async throws -> WeatherData
     
     // New: search for matching cities
     func searchCities(matching query: String) async throws -> [CitySearchResult]

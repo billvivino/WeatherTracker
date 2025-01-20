@@ -26,3 +26,25 @@ struct CitySearchResult: Decodable, Identifiable {
     let lon: Double
     let url: String
 }
+
+enum WeatherFetchError: LocalizedError {
+    case noNetwork
+    
+    var errorDescription: String? {
+        switch self {
+        case .noNetwork:
+            return "You appear to be offline. Please connect to the internet and try again."
+        }
+    }
+}
+
+enum SearchError: LocalizedError {
+    case noNetwork
+    
+    var errorDescription: String? {
+        switch self {
+        case .noNetwork:
+            return "You appear to be offline. Please connect to the internet and try again."
+        }
+    }
+}

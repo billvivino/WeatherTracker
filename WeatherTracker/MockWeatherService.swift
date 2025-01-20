@@ -20,6 +20,19 @@ struct MockWeatherService: WeatherServiceProtocol {
         )
     }
     
+    func fetchWeather(for cityString: String) async throws -> WeatherData {
+        // Return mock data
+        return WeatherData(
+            name: "New York",
+            temperature: 75.0,
+            weatherCondition: "Sunny",
+            weatherIcon: "https://cdn.weatherapi.com/weather/64x64/day/116.png",
+            humidity: 10.0,
+            uvIndex: 3,
+            feelsLikeTemperature: 72.0
+        )
+    }
+    
     func searchCities(matching query: String) async throws -> [CitySearchResult] {
         // Return 5 fixed mock search results for any input
         return [

@@ -70,6 +70,37 @@ struct APIWeatherService: WeatherServiceProtocol {
         )
     }
     
+    func fetchWeather(for cityString: String) async throws -> WeatherData {
+        // 1) Build the request URL with the user’s city input
+        let urlString = "https://api.weatherapi.com/v1/current.json?key=\(apiKey)&q=\(cityString)&aqi=no"
+        
+        // 2) Safely unwrap the URL
+        guard let url = URL(string: urlString) else {
+            throw URLError(.badURL)
+        }
+        
+        // 3) Fetch data asynchronously
+        let (data, _) = try await URLSession.shared.data(from: url)
+        
+        // 4) Decode JSON into our temporary WeatherAPIResponse struct
+        let decoded = try JSONDecoder().decode(WeatherAPIResponse.self, from: data)
+        
+        // If the string starts with "//", add "https:" in front
+        let rawIconURL = decoded.current.condition.icon
+        let weatherIcon = rawIconURL.hasPrefix("//") ? "https:" + rawIconURL : rawIconURL
+        
+        // 5) Map the decoded JSON fields to our WeatherData model
+        return WeatherData(
+            name: decoded.location.name,
+            temperature: decoded.current.temp_c,
+            weatherCondition: decoded.current.condition.text,
+            weatherIcon: weatherIcon,
+            humidity: Double(decoded.current.humidity),
+            uvIndex: decoded.current.uv,
+            feelsLikeTemperature: decoded.current.feelslike_c
+        )
+    }
+    
     // New method to hit /search.json
     func searchCities(matching query: String) async throws -> [CitySearchResult] {
         // WeatherAPI docs: GET /search.json?key=YOUR_KEY&q=QUERY

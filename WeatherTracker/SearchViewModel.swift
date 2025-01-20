@@ -18,6 +18,7 @@ final class SearchViewModel: ObservableObject {
     // For searching:
     @Published var searchText: String = ""
     @Published var citySearchResults: [CitySearchResult] = []
+    @Published var searchError: Error?
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -27,7 +28,17 @@ final class SearchViewModel: ObservableObject {
     }
     
     /// Fetch or retrieve from cache
-    func fetchCityDataIfNeeded(for city: CitySearchResult) async -> CityData? {
+    func fetchCityDataIfNeeded(for city: CitySearchResult, networkMonitor: NetworkMonitor? = nil) async -> CityData? {
+        // Clear previous error
+        searchError = nil
+        
+        // 1) If there's a NetworkMonitor and we know we’re offline, fail fast
+        if let monitor = networkMonitor, !monitor.isConnected {
+            searchError = SearchError.noNetwork
+            citySearchResults = []
+            return nil
+        }
+        
         // 1) Check the cache first
         if let cached = cityCache[city.id] {
             return cached

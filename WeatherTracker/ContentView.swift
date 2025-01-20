@@ -10,8 +10,11 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var weatherViewModel: WeatherViewModel
     @StateObject private var searchViewModel: SearchViewModel
+    @EnvironmentObject private var networkMonitor: NetworkMonitor
+    
     @State private var searchText: String = ""
     @AppStorage("cityId") var cityId: Int?
+    @FocusState private var isSearchFieldFocused: Bool
     
     // Custom init for dependency injection
     init(weatherViewModel: WeatherViewModel, searchViewModel: SearchViewModel) {
@@ -23,38 +26,45 @@ struct ContentView: View {
         VStack {
             // Search Bar in a ZStack
             
-                // MARK: - Search Bar
-                HStack {
-                    TextField("Search Location", text: $searchViewModel.searchText)
-                        .padding(.leading, 16)
-                    
-                    Spacer()
-                    
-                    // If there's text, show an X button
-                    if !searchViewModel.searchText.isEmpty {
-                        Button {
-                            searchViewModel.searchText = ""
+            // MARK: - Search Bar
+            HStack {
+                TextField("Search Location", text: $searchViewModel.searchText)
+                    .padding(.leading, 16)
+                    .focused($isSearchFieldFocused)
+                    .onSubmit {
+                        Task {
+                            await weatherViewModel.updateWeather(for: searchViewModel.searchText, networkMonitor: self.networkMonitor)
                             searchViewModel.clearSearchResults()
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.gray)
+                            searchViewModel.searchText = ""
                         }
-                        .padding(.trailing, 8)
-                    } else {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.gray)
-                            .padding(.trailing, 16)
                     }
+                
+                Spacer()
+                
+                // If there's text, show an X button
+                if !searchViewModel.searchText.isEmpty {
+                    Button {
+                        searchViewModel.searchText = ""
+                        searchViewModel.clearSearchResults()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.trailing, 8)
+                } else {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                        .padding(.trailing, 16)
                 }
-                .padding(.vertical, 12)
-                .background(Color(.systemGray6))
-                .cornerRadius(20)
-                .padding(.horizontal)
+            }
+            .padding(.vertical, 12)
+            .background(Color(.systemGray6))
+            .cornerRadius(20)
+            .padding(.horizontal)
             // MARK: - End Search Bar
             
             Spacer()
             
-            // If we have results, show them in a list below the text field
             if !searchViewModel.citySearchResults.isEmpty,
                !searchViewModel.searchText.isEmpty {
                 // Make sure the list is below the search field
@@ -63,18 +73,19 @@ struct ContentView: View {
                     onSelectCity: { cityResult in
                         // On select city
                         cityId = cityResult.id
+                        isSearchFieldFocused = false
                         Task {
-                            await weatherViewModel.updateWeather(for: cityResult.id)
+                            await weatherViewModel.updateWeather(for: cityResult.id, networkMonitor: self.networkMonitor)
+                            searchViewModel.clearSearchResults()
+                            searchViewModel.searchText = ""
                         }
-                        searchViewModel.clearSearchResults()
-                        searchViewModel.searchText = ""
                     },
                     viewModel: searchViewModel
                 )
             } else if searchViewModel.citySearchResults.isEmpty,
                       !searchViewModel.searchText.isEmpty {
                 EmptyView()
-            } else {
+            } else if weatherViewModel.fetchError == nil {
                 if cityId != nil {
                     if let weather = weatherViewModel.weatherData {
                         // MARK: - Weather Icon with Overlaid Avatars
@@ -173,13 +184,28 @@ struct ContentView: View {
                 }
                 
                 Spacer()
+            } else {
+                VStack(spacing: 8) {
+                    Text("Invalid City Name")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    
+                    if let error = weatherViewModel.fetchError {
+                        Text(error.localizedDescription)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.red)
+                    }
+                }
+                
+                Spacer()
             }
         }
         .padding()
         .onAppear {
             if let cityId = cityId {
                 Task {
-                    await weatherViewModel.updateWeather(for: cityId)
+                    await weatherViewModel.updateWeather(for: cityId, networkMonitor: self.networkMonitor)
                 }
             }
         }
@@ -198,6 +224,7 @@ struct ContentView: View {
                 weatherService: MockWeatherService()
             )
     )
+    .environmentObject(NetworkMonitor())
     .onAppear {
         UserDefaults.standard.set(524901, forKey: "cityId")
     }

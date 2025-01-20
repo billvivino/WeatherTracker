@@ -186,8 +186,8 @@ struct ContentView: View {
                 Spacer()
             } else {
                 VStack(spacing: 8) {
-                    if let error = weatherViewModel.fetchError,
-                       error as! WeatherFetchError == WeatherFetchError.noNetwork {
+                    if let error = weatherViewModel.fetchError as? WeatherFetchError,
+                       error == WeatherFetchError.noNetwork {
                         Text("Error Fetching Weather Data")
                             .font(.title)
                             .fontWeight(.bold)

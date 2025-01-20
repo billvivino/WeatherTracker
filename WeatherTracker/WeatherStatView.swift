@@ -1,3 +1,11 @@
+//
+//  WeatherStatView.swift
+//  WeatherTracker
+//
+//  Created by Bill Vivino on 1/20/25.
+//
+import SwiftUI
+
 /// A simple vertical stack for any weather stat (Humidity, UV, etc.).
 struct WeatherStatView: View {
     let title: String
@@ -6,26 +14,18 @@ struct WeatherStatView: View {
     var body: some View {
         VStack(spacing: 4) {
             Text(title)
-                .font(.caption)
-                .foregroundColor(.gray)
+                .font(.body)
+                .foregroundStyle(.tertiary)
             Text(value)
-                .font(.subheadline)
+                .font(.body)
+                .foregroundStyle(.secondary)
                 .fontWeight(.semibold)
         }
     }
 }
 
-// MARK: - Preview
-
 #Preview {
-    WeatherDetailView(
-        weather: WeatherData(
-            city: "Hyderabad",
-            temperature: 31,
-            humidity: 20,
-            uv: 4,
-            feelsLike: 38,
-            conditionText: "Partly Cloudy"
-        )
-    )
+    WeatherStatView(title: "UV", value: "4")
 }
+
+

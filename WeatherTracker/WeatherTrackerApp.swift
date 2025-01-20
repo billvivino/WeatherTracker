@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct WeatherTrackerApp: App {
+    let weatherService: WeatherServiceProtocol = APIWeatherService()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(
+                weatherViewModel: WeatherViewModel(weatherService: weatherService),
+                searchViewModel: SearchViewModel(weatherService: weatherService)
+            )
         }
     }
 }

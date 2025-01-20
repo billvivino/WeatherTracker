@@ -1,30 +1,47 @@
 //
-//  MockWeatherService.swift
+//  SearchResultsView.swift
 //  WeatherTracker
 //
 //  Created by Bill Vivino on 1/20/25.
 //
+import SwiftUI
 
-
-struct MockWeatherService: WeatherServiceProtocol {
-    func fetchWeather(for id: Int) async throws -> WeatherData {
-        // Return mock data
-        return WeatherData(
-            name: "New York",
-            temperature: 75.0,
-            weatherCondition: "Sunny",
-            weatherIcon: "https://cdn.weatherapi.com/weather/64x64/day/116.png",
-            humidity: 10.0,
-            uvIndex: 3,
-            feelsLikeTemperature: 72.0
-        )
-    }
+struct SearchResultsView: View {
+    let results: [CitySearchResult]
     
-    func searchCities(matching query: String) async throws -> [CitySearchResult] {
-        // Return 5 fixed mock search results for any input
-        return [
+    /// Called when the user taps a city card
+    let onSelectCity: (CitySearchResult) -> Void
+    @State private var weatherDataArray: [WeatherData] = []
+    
+    // Local state to store loaded data (e.g., icon URL, temp)
+    @State private var cityData: CityData?
+    
+    /// The ViewModel that holds our cache
+    @ObservedObject var viewModel: SearchViewModel
+    
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                ForEach(results) { city in
+                    CityCardRow(
+                        city: city,
+                        onSelectCity: onSelectCity,
+                        viewModel: viewModel
+                    )
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 16)
+        }
+        .scrollIndicators(.hidden)
+    }
+}
+
+#Preview {
+    SearchResultsView(
+        results: [
             CitySearchResult(
-                id: 1,
+                id: 2796590,
                 name: "London",
                 region: "Greater London",
                 country: "United Kingdom",
@@ -68,7 +85,9 @@ struct MockWeatherService: WeatherServiceProtocol {
                 lon: 2.35,
                 url: "paris-ile-de-france-france"
             )
-        ]
-    }
+        ], onSelectCity: { _ in },
+        viewModel: SearchViewModel(
+            weatherService: MockWeatherService()
+        )
+    )
 }
-

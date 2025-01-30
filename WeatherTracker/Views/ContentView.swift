@@ -11,6 +11,7 @@ struct ContentView: View {
     @StateObject private var weatherViewModel: WeatherViewModel
     @StateObject private var searchViewModel: SearchViewModel
     @EnvironmentObject private var networkMonitor: NetworkMonitor
+    @Environment(\.modelContext) private var context   // <-- Access SwiftData context
     
     @State private var searchText: String = ""
     @AppStorage("cityId") var cityId: Int?
@@ -62,6 +63,20 @@ struct ContentView: View {
             .cornerRadius(20)
             .padding(.horizontal)
             // MARK: - End Search Bar
+            
+            HStack {
+                Spacer()
+                if let cityName = weatherViewModel.weatherData?.name,
+                   let selectedCityId = cityId {
+                    Button("Favorite") {
+                        let newCity = FavoriteCity(cityId: selectedCityId, name: cityName)
+                        context.insert(newCity)
+                        // SwiftData will handle saving automatically, or you can do `try? context.save()`.
+                    }
+                    .buttonStyle(BorderedProminentButtonStyle())
+                    .padding()
+                }
+            }
             
             Spacer()
             

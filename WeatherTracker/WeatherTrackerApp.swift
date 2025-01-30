@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct WeatherTrackerApp: App {
@@ -14,11 +15,13 @@ struct WeatherTrackerApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView(
+            RootTabView(
                 weatherViewModel: WeatherViewModel(weatherService: weatherService),
                 searchViewModel: SearchViewModel(weatherService: weatherService)
             )
             .environmentObject(networkMonitor)
+            // Provide a SwiftData container for your models
+            .modelContainer(for: [FavoriteCity.self])
         }
     }
 }

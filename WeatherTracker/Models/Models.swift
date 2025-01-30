@@ -6,6 +6,19 @@
 //
 
 import Foundation
+import SwiftData
+
+@Model
+class FavoriteCity {
+    // Must be `var` for SwiftData to track changes
+    var cityId: Int
+    var name: String
+    
+    init(cityId: Int, name: String) {
+        self.cityId = cityId
+        self.name = name
+    }
+}
 
 struct WeatherData: Sendable {
     let name: String
